@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {
+  background-color: rgba(255, 0, 0, 0.664);
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#predict{
+  
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#predict:hover {
+  background-color: #45a049;
+}
+
+input[type=reset] {
+  width: 100%;
+  background-color: #FF0000;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=reset]:hover {
+  background-color: #a61c12;
+}
+
+div {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+#container{
+text-align: center;
+}
+
+#nav{
+  background-color: white;
+  text-align: center;
+}
+
+</style>
+
+<script>
+  function redir(result){
+      console.log(result);
+      location.href = "/result";
+  }
+  function selectVal(element, message){
+    var select = document.getElementById(element);
+    if (select.selectedIndex == 0){
+      alert(message);
+      return -1;
+    }
+    return select.options[select.selectedIndex].value;
+  }
+
+  function inputVal(element,message1){
+    var select = document.getElementById(element).value;
+    if (select == null){
+      alert(message1);
+      return -1;
+    }
+    res = parseFloat(select);
+    if (Number.isNaN(res)){
+      alert(message1);
+      return -1
+    }
+    if (Math.sign(res) == -1){
+      alert(message1)
+      return -1
+    }
+    return res;
+  }
+
+  function getData(){
+    var age = inputVal("age", "Please input a correct age")
+    if (age == -1){
+      return -1
+    }
+
+    var trestbps = inputVal("trestbps", "Please input a correct Resting Blood Pressure")
+    if (trestbps == -1){
+      return -1
+    }    
+    
+    var thalach = inputVal("thalach", "Please input a correct Maximum Heart Rate")
+    if (thalach == -1){
+      return -1
+    }
+
+    var chol = inputVal("chol", "Please input a correct Serum Cholestrol Measure")
+    if (chol == -1){
+      return -1
+    }    
+    
+    var oldpeak = inputVal("oldpeak", "Please input a correct ST Depression Induced by Exercise Relative to Rest")
+    if (oldpeak == -1){
+      return -1
+    }
+
+    var cp = selectVal("cp","Please select a Chest Pain type");
+    if (cp == -1){
+      return -1
+    }
+    var sex = selectVal("gender", "Please select a gender")
+    if (sex == -1){
+      return -1
+    }
+    var restecg = selectVal("restecg", "Please select a Resting Electrocardiographic Result")
+    if (restecg == -1){
+      return -1
+    }
+    var slope = selectVal("slope", "Please select the Slope of Peak Excersise ST Segment")
+    if (slope == -1){
+      return -1
+    }
+    var ca = selectVal("ca", "Please select the Number of major vessels colored by fluoroscopy")
+    if (ca == -1){
+      return -1
+    }
+    var fbs = selectVal("fbs", "Please select the Fasting Blood Sugar")
+    if (fbs == -1){
+      return -1
+    }
+    var exang = selectVal("exang", "Please select the Exercise-induced angina")
+    if (exang == -1){
+      return -1
+    }
+    var resultV = [age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca]
+    var formdata = new FormData();
+    formdata.append("data", resultV);
+
+    var requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow'
+    };
+
+    fetch("http://127.0.0.1:5000/data", requestOptions)
+      .then(response => response.text())
+      .then(result => window.location.href = "/result")
+      .catch(error => console.log('error', error));
+    console.log("YES")
+  }
+</script>
+
+<body>
+<div id = nav>
+<h1 style="text-align:center"><b>Heart Disease Classifier</b></h1>
+</div>
+<p style="color: white">This is a machine learning model that predicts whether or not a patient has heart disease or not; if the patient has heart disease, the model is able to predict what stage this heart diseases is: stage 1, 2, 3, or 4.</p>
+<p style="color: white"><b>Disclaimer:</b> This tool is NOT 100% accurate. There exists no algorithm can predict heart disease with absolutely no error.
+Nevertheless, if you choose to use this tool for medical purposes, please do so at your own discretion. </p>
+<div id = "form">
+<form>
+  <label className="age" for="age">Age:</label><br>
+  <input type="text" id="age" name="age"><br>
+<label for="gender">Gender:</label>
+<select name="gender" id="gender">
+<option value="">--Please choose an option--</option>
+  <option value="Male">Male</option>
+  <option value="Female">Female</option>
+</select><br>
+<label for="cp">Chest Pain Type:</label>
+<select name="cp" id="cp">
+<option value="">--Please choose an option--</option>
+  <option value="asymptomatic">Asymptomatic</option>
+  <option value="non-anginal">Non-anginal</option>
+  <option value="atypical angina">Atypical angina</option>
+  <option value="typical angina">Typical angina</option>
+</select><br>
+<label className="trestbps" for="trestbps">Resting Blood Pressure (mm Hg):</label><br>
+<input type="text" id="trestbps" name="trestbps"><br>
+
+<label className="thalach" for="thalach">Maximum Heart Rate:</label><br>
+<input type="text" id="thalach" name="thalach"><br>
+
+<label className="chol" for="chol">Serum Cholesterol Measure (mg/dl):</label><br>
+<input type="text" id="chol" name="chol"><br>
+
+<label className="oldpeak" for="oldpeak">ST Depression Induced by Exercise Relative to Rest:</label><br>
+<input type="text" id="oldpeak" name="oldpeak"><br>
+
+<label for="restecg">Resting Electrocardiographic Results:</label>
+<select name="restecg" id="restecg">
+<option value="">--Please choose an option--</option>
+  <option value="normal">Normal</option>
+  <option value="lv hypertrophy">lv Hypertrophy</option>
+  <option value="stt abnormality">Stt Abnormality</option>
+</select><br>
+
+
+<label for="slope">Slope of Peak Excersise ST Segment:</label>
+<select name="slope" id="slope">
+<option value="">--Please choose an option--</option>
+  <option value="flat">Flat</option>
+  <option value="upsloping">Upsloping</option>
+  <option value="downsloping">Downsloping</option>
+</select><br>
+
+<label for="ca">Number of major vessels colored by fluoroscopy:</label>
+<select name="ca" id="ca">
+<option value="">--Please choose an option--</option>
+  <option value="0">0</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select><br>
+
+<label for="fbs">Fasting Blood Sugar:</label>
+<select name="fbs" id="fbs">
+<option value="">--Please choose an option--</option>
+  <option value="fbs_true"> > 120 mg/dl </option>
+  <option value="fbs_false"> < 120 mg/dl </option>
+</select><br>
+
+<label for="exang">Exercise-induced angina:</label>
+<select name="exang" id="exang">
+<option value="">--Please choose an option--</option>
+  <option value="exang_true">True</option>
+  <option value="exang_false">False</option>
+</select><br>
+
+<div id = "container">
+  <input type="reset" value="Clear">
+  <button type="button" id="predict" onclick="getData()">Predict!</button>
+</div>
+</form>
+</div>
+
+</body>
+</html>
